@@ -45,10 +45,9 @@ RUN \
 
 # clone hackpad
 RUN \
-     cd / && \
-     git clone https://github.com/dropbox/hackpad.git
+     git clone https://github.com/dropbox/hackpad.git /hackpad
 
-# set up hackpad conf
+# set up hackpad build path
 RUN \
      sed -i -e"s/^export SCALA_HOME=.*/export SCALA_HOME=\"\/usr\/share\/scala\"/" /hackpad/bin/exports.sh && \
      sed -i -e"s/^export SCALA_LIBRARY_JAR=.*/export SCALA_LIBRARY_JAR=\"\$SCALA_HOME\/lib\/scala-library.jar\"/" /hackpad/bin/exports.sh && \
@@ -58,6 +57,13 @@ RUN \
 RUN \
      cd /hackpad && \
      bin/build.sh
+
+# add emoji image
+RUN \
+    mkdir -p /hackpad/etherpad/src/static/img/emoji/unicode/ && \
+    git clone https://github.com/github/gemoji.git /tmp/gemoji/ && \
+    cp /tmp/gemoji/images/emoji/unicode/* /hackpad/etherpad/src/static/img/emoji/unicode/ && \
+    rm -rf /tmp/gemoji
 
 COPY ./etc/start.sh /hackpad/bin/start.sh
 COPY ./etc/setup-mysql-db.sh /hackpad/bin/setup-mysql-db.sh
